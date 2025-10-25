@@ -1,0 +1,62 @@
+
+# values.yaml
+# Service Configuration
+service:
+  type: LoadBalancer
+  ports:
+    http: 9000
+    https: 9001
+
+# SonarQube Deployment Configuration
+sonarqube:
+  replicaCount: 1
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1"
+    limits:
+      memory: "4Gi"
+      cpu: "2"
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "ebs-sc"
+
+# Environment Variables for SonarQube
+env:
+  - name: SONARQUBE_JDBC_URL
+    value: "jdbc:postgresql://sonarqube-postgresql:5432/sonarqube"
+  - name: SONARQUBE_JDBC_USERNAME
+    value: sonarqube
+  - name: SONARQUBE_JDBC_PASSWORD
+    value: sonarpassword
+
+# PostgreSQL Configuration
+postgresql:
+  enabled: true
+  auth:
+    username: sonarqube
+    password: sonarpassword
+    database: sonarqube
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: "ebs-sc"
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1"
+
+# Monitoring Passcode Configuration (Required)
+monitoringPasscode: "sonar-monitoring-pass"
+
+# Community Edition Enablement (Important)
+edition: ""
+community:
+  enabled: true
+
+
+

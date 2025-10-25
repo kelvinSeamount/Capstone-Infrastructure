@@ -1,0 +1,21 @@
+#kubectl create ns webapps 
+
+#kubectl apply -f manifest.yaml  -n webapps
+
+Check If Sync Is there or not
+kubectl run -it --rm mongo-client -n webapps --image=mongo:7.0 -- bash 
+
+mongosh "mongodb://mongo-0.mongo.webapps.svc.cluster.local:27017"
+
+rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "mongo-0.mongo.webapps.svc.cluster.local:27017" },
+    { _id: 1, host: "mongo-1.mongo.webapps.svc.cluster.local:27017" },
+    { _id: 2, host: "mongo-2.mongo.webapps.svc.cluster.local:27017" }
+  ]
+})
+
+#kubectl exec -it -n webapps mongo-1 -- mongosh --eval "rs.status()"
+
+

@@ -1,0 +1,63 @@
+STEP 1: Create Namespace for Vault
+
+kubectl create namespace vault
+
+Reason?
+To separate Vault’s workloads from the rest of your cluster for organization and RBAC control.
+
+STEP 2: Add Helm Repo and Install Vault with Raft HA
+
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo update
+
+
+STEP 3: Expose Vault Using LoadBalancer
+Create a service vault-service.yaml:
+
+
+
+#Unseal the pods vaults for perfect runing state 
+STEP 4: Initialize Vault (Run Once)
+kubectl exec -n vault -it vault-0 -- vault operator init
+ Copy and save:
+	•	5 unseal keys
+	•	1 initial root token
+
+
+
+STEP 5: Unseal Vault on All Pods
+Use any 3 keys on each Vault pod:
+
+kubectl exec -n vault -it vault-0 -- vault operator unseal <key>
+kubectl exec -n vault -it vault-1 -- vault operator unseal <key>
+kubectl exec -n vault -it vault-2 -- vault operator unseal <key>
+
+STEP 6: Login to Vault  
+kubectl exec -n vault -it vault-0 -- vault login <root-token>
+
+STEP 6a: Login to Vault  UI
+#kubectl get vault-service -n vault   &. copy the loadbalancer url 
+
+    1. Enable Kubernetes Auth on Vault
+    kubectl exec -n vault -it vault-0 -- vault auth enable kubernetes
+  
+
+    2. Create the Vault Policy
+    Create a policy file locally:
+    cat <<EOF > noteapp-policy.hcl
+    path "secret/data/noteapp" {
+    capabilities = ["read"]
+    }
+
+    path "secret/metadata/noteapp" {
+    capabilities = ["list"]
+    }
+    EOF
+    Then upload and apply it:
+    kubectl cp noteapp-policy.hcl vault/vault-0:/tmp/noteapp-policy.hcl
+    kubectl exec -n vault -it vault-0 -- vault policy write noteapp /tmp/noteapp-policy.hcl
+
+
+    3. Create a Service Account in Your App Namespace
+    kubectl create namespace webapps
+    kubectl create serviceaccount noteapp-sa -n webapps

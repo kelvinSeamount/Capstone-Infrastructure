@@ -1,0 +1,17 @@
+# Add Helm Repo
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts 
+helm repo update
+
+
+# Deploy
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack -f values.yaml -n monitoring --create-namespace
+
+
+#kubectl get all -n monitoring 
+
+
+
+# Patch services to LoadBalancer for External Access
+kubectl patch svc monitoring-kube-prometheus-prometheus -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+kubectl patch svc monitoring-kube-state-metrics -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'
+kubectl patch svc monitoring-prometheus-node-exporter -n monitoring -p '{"spec": {"type": "LoadBalancer"}}'

@@ -61,3 +61,36 @@ STEP 6a: Login to Vault  UI
     3. Create a Service Account in Your App Namespace
     kubectl create namespace webapps
     kubectl create serviceaccount noteapp-sa -n webapps
+
+    4. Create a Vault Role for the Service Account
+    kubectl exec -n vault -it vault-0 -- vault write auth/kubernetes/role/noteapp \
+    bound_service_account_names=noteapp-sa \
+    bound_service_account_namespaces=webapps \
+    policies=noteapp \
+    ttl=24h
+
+
+    5. Configure Kubernetes Auth Backend
+    Extract values from cluster:
+    SERVICE_ACCOUNT_NAME=noteapp-sa
+    NAMESPACE=webapps
+    SECRET_NAME=$(kubectl get sa $SERVICE_ACCOUNT_NAME -n $NAMESPACE -o jsonpath="{.secrets[0].name}")
+    TOKEN_REVIEW_JWT=$(kubectl get secret $SECRET_NAME -n $NAMESPACE -o jsonpath="{.data.token}" | base64 --decode)
+    KUBE_CA_CERT=$(kubectl get secret $SECRET_NAME -n $NAMESPACE -o jsonpath="{.data['ca.crt']}" | base64 --decode)
+    KUBE_HOST=$(kubectl config view --raw -o=jsonpath='{.clusters[0].cluster.server}')
+
+
+       #Now apply config:
+        kubectl exec -n vault -it vault-0 -- vault write auth/kubernetes/config \
+        token_reviewer_jwt="$TOKEN_REVIEW_JWT" \
+        kubernetes_host="$KUBE_HOST" \
+        kubernetes_ca_cert="$KUBE_CA_CERT"
+
+
+        # Enable KV V2 Engine (Reason v2 Secret engine is because proper versioning & updating)
+            kubectl exec -n vault -it vault-0 -- vault secrets enable -path=secret -version=2 kv
+
+
+    6. Store the MongoDB Connection String in Vault
+    Make sure you match casing with your app (your file reads from /vault/secrets/mongodb__connectionstring):
+    kubectl exec -n vault -it vault-0 -- vault kv put secret/noteapp mongodb__connectionstring="mongodb://mongo-0.mongo,mongo-1.mongo,mongo-2.mongo:27017/NoteDb?replicaSet=rs0"    

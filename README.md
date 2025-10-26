@@ -3,7 +3,7 @@
 
 Overview
 
-This repository contains the complete Infrastructure as Code (IaC) configuration for deploying and managing a production grade Kubernetes based application platform with integrated CI/CD, monitoring, security, and database infrastructure.
+This repository contains the complete Infrastructure as Code (IaC) configuration for deploying and managing a production grade Kubernetes based application platform with multi namespace architecture, database clustering, secrets management, code quality analysis, and monitoring infrastructure.
 
 
 Architecture
@@ -16,7 +16,9 @@ The infrastructure consists of the following:
 
     MongoDB Cluster: 3 node StatefulSet with persistent storage
 
-    Security & Quality: Checkov (IaC security), SonarQube, Trivy, and HashiCorp Vault integration
+    HashiCorp Vault: Centralized secrets management in dedicated namespace
+
+    SonarQube: Code quality and analysis platform in dedicated namespace
 
     Monitoring Stack: Prometheus and Grafana for observability
 

@@ -11,6 +11,10 @@ helm repo add hashicorp https://helm.releases.hashicorp.com
 helm repo update
 
 
+# helm upgrade --install vault hashicorp/vault -n vault -f vault-values.yaml
+
+# kubectl get all -n vault
+
 STEP 3: Expose Vault Using LoadBalancer
 Create a service vault-service.yaml:
 

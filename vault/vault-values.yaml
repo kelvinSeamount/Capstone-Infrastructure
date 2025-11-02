@@ -43,6 +43,3 @@ injector:
 ui:
   enabled: true
 
-# helm upgrade --install vault hashicorp/vault -n vault -f vault-values.yaml
-
-# kubectl get all -n vault

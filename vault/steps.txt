@@ -76,6 +76,8 @@ STEP 6a: Login to Vault  UI
     bound_service_account_namespaces=webapps \
     policies=noteapp \
     ttl=24h \
+	
+	#Did not work 
     audience="vault" # In Vault v1.21+, specifying an audience on roles will be required.
 
 

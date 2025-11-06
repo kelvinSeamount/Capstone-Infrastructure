@@ -48,6 +48,7 @@ STEP 6a: Login to Vault  UI
 
     2. Create the Vault Policy
     Create a policy file locally:
+
     cat <<EOF > noteapp-policy.hcl
     path "secret/data/noteapp" {
     capabilities = ["read"]
@@ -57,6 +58,7 @@ STEP 6a: Login to Vault  UI
     capabilities = ["list"]
     }
     EOF
+
     Then upload and apply it:
     kubectl cp noteapp-policy.hcl vault/vault-0:/tmp/noteapp-policy.hcl
     kubectl exec -n vault -it vault-0 -- vault policy write noteapp /tmp/noteapp-policy.hcl

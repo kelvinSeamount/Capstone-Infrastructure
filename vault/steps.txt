@@ -65,19 +65,24 @@ STEP 6a: Login to Vault  UI
 
 
     3. Create a Service Account in Your App Namespace
-    kubectl create namespace webapps
+    
     kubectl create serviceaccount noteapp-sa -n webapps
 
-    4. Create a Vault Role for the Service Account
+
+    4. Create a Vault Role & List  for the Service Account 
+
     kubectl exec -n vault -it vault-0 -- vault write auth/kubernetes/role/noteapp \
     bound_service_account_names=noteapp-sa \
     bound_service_account_namespaces=webapps \
     policies=noteapp \
-    ttl=24h
+    ttl=24h \
+    audience="vault" # In Vault v1.21+, specifying an audience on roles will be required.
+
 
 
     5. Configure Kubernetes Auth Backend
     Extract values from cluster:
+
     SERVICE_ACCOUNT_NAME=noteapp-sa
     NAMESPACE=webapps
     SECRET_NAME=$(kubectl get sa $SERVICE_ACCOUNT_NAME -n $NAMESPACE -o jsonpath="{.secrets[0].name}")
@@ -87,6 +92,7 @@ STEP 6a: Login to Vault  UI
 
 
        #Now apply config:
+
         kubectl exec -n vault -it vault-0 -- vault write auth/kubernetes/config \
         token_reviewer_jwt="$TOKEN_REVIEW_JWT" \
         kubernetes_host="$KUBE_HOST" \

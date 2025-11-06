@@ -1,6 +1,5 @@
-               MongoDB StatefulSet
-
-MongoDB Stateful-Set
+               
+#MongoDB Stateful-Set
 ---
 apiVersion: v1
 kind: Service

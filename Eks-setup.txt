@@ -19,11 +19,6 @@ sudo apt-get update && sudo apt-get install terraform -y
 
 terraform -version
 
-
-# Kubeconfig
-aws eks --region eu-central-1 update-kubeconfig --name mekadevops-cluster
-
-
 # Kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
@@ -32,7 +27,6 @@ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stabl
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
 kubectl version --client
-
 
 
 #Eksctl
@@ -44,18 +38,17 @@ sudo mv eksctl /usr/local/bin
 
 eksctl version
 
+#NB terraform command must be applied before executing the rest of the commands (terraform init, plan, apply)
 
-
+# Kubeconfig
+aws eks --region eu-central-1 update-kubeconfig --name mekadevops-cluster
 	
 #Install HELM
 sudo apt update && sudo apt upgrade -y
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-
-
 #Eksctl OIDC
 eksctl utils associate-iam-oidc-provider --region eu-central-1 --cluster mekadevops-cluster --approve
-
 
 #Service Account
 
@@ -68,12 +61,9 @@ eksctl create iamserviceaccount \
   --approve \
   --override-existing-serviceaccounts
 
-
-
 kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/ecr/?ref=release-1.11"
 
-
-
+# Kubernetes ingress setup 
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
 
 kubectl get pods -n ingress-nginx
